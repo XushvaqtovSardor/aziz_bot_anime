@@ -23,12 +23,12 @@ jobs:
             mkdir -p /root
             cd /root
 
-            if [ ! -d "aziz_botgrammy2/.git" ]; then
+            if [ ! -d "aziz_bot_anime/.git" ]; then
               echo "Cloning repository!" 
-              git clone https://github.com/XushvaqtovSardor/aziz_botgrammy2
+              git clone https://github.com/XushvaqtovSardor/aziz_bot_anime
             else
               echo "Pulling latest changes!"
-              cd aziz_botgrammy2   
+              cd aziz_bot_anime  
               git pull origin main  
             fi
 
