@@ -11,8 +11,7 @@ import { Pool } from 'pg';
 @Injectable()
 export class PrismaService
   extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
+  implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
   private pool: Pool;
 
@@ -25,7 +24,19 @@ export class PrismaService
 
     const maskedUrl = databaseUrl.replace(/:[^:@]+@/, ':****@');
 
-    const pool = new Pool({ connectionString: databaseUrl });
+    // Connection Pool konfiguratsiyasi - CPU yuqori ishlatishni oldini olish uchun
+    const pool = new Pool({
+      connectionString: databaseUrl,
+      max: 20, // Maksimal ulanishlar soni
+      min: 2, // Minimal ulanishlar soni  
+      idleTimeoutMillis: 30000, // 30 sekund idle bo'lsa ulanishni o'chirish
+      connectionTimeoutMillis: 10000, // 10 sekund ulanish timeout
+      maxUses: 7500, // Ulanishni qayta ishlatish limiti
+      allowExitOnIdle: true, // Idle bo'lsa process to'xtashi mumkin
+      statement_timeout: 30000, // Query timeout - 30 sekund
+      query_timeout: 30000, // Query timeout
+    });
+
     const adapter = new PrismaPg(pool);
 
     super({
@@ -33,14 +44,27 @@ export class PrismaService
       log:
         process.env.NODE_ENV === 'development'
           ? [
-              { emit: 'event', level: 'query' },
-              { emit: 'event', level: 'error' },
-              { emit: 'event', level: 'warn' },
-            ]
+            { emit: 'event', level: 'query' },
+            { emit: 'event', level: 'error' },
+            { emit: 'event', level: 'warn' },
+          ]
           : [{ emit: 'event', level: 'error' }],
     });
 
     this.pool = pool;
+
+    // Pool hodisalarini monitoring qilish
+    this.pool.on('error', (err) => {
+      this.logger.error('❌ Unexpected pool error:', err);
+    });
+
+    this.pool.on('connect', () => {
+      this.logger.debug('✅ New client connected to pool');
+    });
+
+    this.pool.on('remove', () => {
+      this.logger.debug('🗑️ Client removed from pool');
+    });
 
     this.$on('error' as never, (e: any) => {
       this.logger.error('Database error:', e);

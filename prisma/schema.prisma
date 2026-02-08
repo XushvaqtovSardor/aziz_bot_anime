@@ -35,6 +35,10 @@ model User {
   @@index([isPremium])
   @@index([hasTelegramPremium])
   @@index([isPremiumBanned])
+  @@index([createdAt])
+  @@index([lastActivity])
+  @@index([premiumBannedAt])
+  @@index([isBlocked])
 }
 
 model Admin {
@@ -94,6 +98,8 @@ model MandatoryChannel {
 
   @@index([isActive])
   @@index([type])
+  @@index([order])
+  @@index([createdAt])
 }
 
 model Movie {
@@ -124,6 +130,8 @@ model Movie {
   @@index([code])
   @@index([fieldId])
   @@index([views])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model MovieEpisode {
@@ -165,6 +173,9 @@ model Serial {
 
   @@index([code])
   @@index([fieldId])
+  @@index([views])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model Episode {
@@ -197,6 +208,9 @@ model WatchHistory {
 
   @@index([userId])
   @@index([watchedAt])
+  @@index([contentType])
+  @@index([userId, contentType])
+  @@index([userId, watchedAt])
 }
 
 model Payment {
@@ -218,6 +232,8 @@ model Payment {
   @@index([userId])
   @@index([status])
   @@index([transactionId])
+  @@index([createdAt])
+  @@index([userId, status])
 }
 
 model PremiumSettings {
@@ -259,6 +275,8 @@ model Broadcast {
 
   @@index([createdAt])
   @@index([status])
+  @@index([type])
+  @@index([status, createdAt])
 }
 
 enum AdminRole {
